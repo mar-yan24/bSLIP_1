@@ -1,12 +1,12 @@
 clear; close all; clc;
-setup_bSLIP_run;  % loads params & ICs
+setup_bSLIP_run;
 
 mdl = 'bSLIP_run';
 load_system(mdl);
 
-% Set stop time
+% set stop time
 set_param(mdl,'StopTime',num2str(t_end));
-% Tight solver if needed
+% set to ode 23
 set_param(mdl,'Solver','ode23t','MaxStep','1e-3','RelTol','1e-4');
 
 % Push ICs to base (use your IC blocks or mask parameters in the model)
