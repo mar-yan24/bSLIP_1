@@ -1,5 +1,5 @@
 function main_1_bSLIP_run
-% Task 1 main – robust to either Signal Logging ('logsout') or To-Workspace (Timeseries).
+% Task 1 main – robust to either Signal Logging ('logsout') or To-Workspace (Timeseries)
 clear; close all; clc;
 
 setup_bSLIP_run;
@@ -7,7 +7,7 @@ mdl = 'bSLIP_run';
 load_system(mdl);
 
 % Make sure normal 5s run (Task 1)
-flag_apex2apex = 0; %#ok<NASGU>
+flag_apex2apex = 0; 
 assignin('base','flag_apex2apex',flag_apex2apex);
 
 % Solver (tight if needed)
@@ -61,7 +61,6 @@ if any(isnan(KE)) || any(isnan(PE_g)) || any(isnan(PE_spr))
 end
 E_tot = KE + PE_g + PE_spr;
 
-% ---------- Figure 1-1: spatial trajectories ----------
 figure('Color','w'); hold on; box on;
 plot(x, y, 'Color',[0 0 0],'LineWidth',2);
 if ~all(isnan(fxL)), plot(fxL, fyL, 'Color',[.6 0 0],'LineWidth',2); end
@@ -70,7 +69,6 @@ xlabel('x (m)'); ylabel('y (m)');
 legend({'COM','foot L','foot R'},'Location','best');
 title('Figure 1-1: Spatial trajectories');
 
-% ---------- Figure 1-2: energies ----------
 figure('Color','w'); hold on; box on;
 plot(t, E_tot, 'Color',[0 0 0],'LineWidth',2);
 plot(t, KE,    'Color',[0 0.45 0.74],'LineWidth',2);
@@ -82,7 +80,7 @@ title('Figure 1-2: Energy trajectories');
 
 end
 
-% ===== helpers =====
+% ------- helpers -------
 function getV = make_fetch(simOut)
     if any(strcmp(simOut.who,'logsout'))
         L = simOut.get('logsout');
@@ -119,7 +117,7 @@ function v = try_data(getV, names)
             end
         end
     end
-    v = nan; v = v(ones(1,1)); % scalar NaN by default (will be promoted later)
+    v = nan; v = v(ones(1,1)); % scalar NaN by default
 end
 function t = try_time(simOut, getV, preferNames)
     for i=1:numel(preferNames)

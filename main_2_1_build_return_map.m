@@ -30,11 +30,11 @@ for a = 1:numel(phi_TD_list_deg)
     apex1 = cell(size(y_i));
 
     for k = 1:numel(y_apex_vec)
-        y0 = y_apex_vec(k);       %#ok<NASGU>
-        dy0 = 0;                  %#ok<NASGU> % apex
+        y0 = y_apex_vec(k);    
+        dy0 = 0;                  
         % pick dx0 to match reference energy
         KE_x = max(0, E_ref - m*g*y0);
-        dx0 = sqrt( 2*KE_x/m );   %#ok<NASGU>
+        dx0 = sqrt( 2*KE_x/m );  
         % keep your existing horizontal x0; make sure both feet are initially off ground
         % (phi0_L,phi0_R,l0_L,l0_R, etc. may come from setup_bSLIP_run)
         % Push ICs to base:
