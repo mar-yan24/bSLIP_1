@@ -1,21 +1,21 @@
 function main_1_bSLIP_run
-% Task 1 main – robust to either Signal Logging ('logsout') or To-Workspace (Timeseries)
+% program mostly works
 clear; close all; clc;
 
 setup_bSLIP_run;
 mdl = 'bSLIP_run';
 load_system(mdl);
 
-% Make sure normal 5s run (Task 1)
+% make sure normal 5s run 
 flag_apex2apex = 0; 
 assignin('base','flag_apex2apex',flag_apex2apex);
 
-% Solver (tight if needed)
-set_param(mdl,'StopTime',num2str(t_end),'Solver','ode23t','MaxStep','1e-3','RelTol','1e-4');
+% solver
+set_param(mdl,'StopTime','5','Solver','ode23t','MaxStep','1e-3','RelTol','1e-4');
 
 simOut = sim(mdl,'ReturnWorkspaceOutputs','on');
 
-% ---- fetch signals robustly ----
+% fetch signals
 getV = make_fetch(simOut);
 
 % time: use com_y time, else simOut.tout
@@ -23,13 +23,13 @@ t  = try_time(simOut, getV, {'com_y','y','dy','dcom_y'});
 x  = try_data(getV, {'com_x','x'});
 y  = try_data(getV, {'com_y','y'});
 
-% feet (optional; fall back to NaNs if not logged)
+% feet
 fxL = try_data(getV, {'footL_x','foot_L_x','foot_x_L'}); 
 fyL = try_data(getV, {'footL_y','foot_L_y','foot_y_L'});
 fxR = try_data(getV, {'footR_x','foot_R_x','foot_x_R'});
 fyR = try_data(getV, {'footR_y','foot_R_y','foot_y_R'});
 
-% velocities (for energy if KE not logged)
+% velocities
 dx = try_data(getV, {'dx','dcom_x','vx','com_vx'});
 dy = try_data(getV, {'dy','dcom_y','vy','com_vy'});
 
@@ -38,7 +38,7 @@ KE     = try_data(getV, {'KE'});
 PE_g   = try_data(getV, {'PE_g','PEgrav'});
 PE_spr = try_data(getV, {'PE_spring','PEspr'});
 
-% If energies not provided, compute basic ones
+% if energies not provided, compute basic ones
 if any(isnan(KE)) || any(isnan(PE_g)) || any(isnan(PE_spr))
     % spring compression from leg lengths if available
     lL = try_data(getV, {'l_L','lL','legL_len'});
@@ -52,12 +52,13 @@ if any(isnan(KE)) || any(isnan(PE_g)) || any(isnan(PE_spr))
     end
 
     if any(isnan(dx)) || any(isnan(dy))
-        error('Could not find dx/dy to compute energies. Please log dx and dy (or dcom_x/dcom_y).');
+        error('Could not find dx/dy to compute energies.');
     end
 
-    KE     = 0.5*m*(dx.^2 + dy.^2);               % body only (feet small)
-    PE_g   = m*g*y;                                % body only (good enough for HW1)
-    PE_spr = 0.5*k_leg*(compL.^2 + compR.^2);      % sum of both springs
+    % energy calculations from imported values
+    KE = 0.5*m*(dx.^2 + dy.^2);
+    PE_g = m*g*y;
+    PE_spr = 0.5*k_leg*(compL.^2 + compR.^2);
 end
 E_tot = KE + PE_g + PE_spr;
 
@@ -80,7 +81,7 @@ title('Figure 1-2: Energy trajectories');
 
 end
 
-% ------- helpers -------
+% helpers (lowkey none of these work)
 function getV = make_fetch(simOut)
     if any(strcmp(simOut.who,'logsout'))
         L = simOut.get('logsout');
@@ -131,5 +132,5 @@ function t = try_time(simOut, getV, preferNames)
     if any(strcmp(simOut.who,'tout'))
         t = simOut.get('tout'); return;
     end
-    error('Could not determine simulation time vector. Please log any signal (Timeseries) to get Time.');
+    error('Could not determine simulation time vector.');
 end

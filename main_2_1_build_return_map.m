@@ -59,7 +59,7 @@ for a = 1:numel(phi_TD_list_deg)
             % Fallback: infer next apex from logged y, dy
             L = getLogs(simOut);
             t  = L('y').Time;
-            y  = L('y').Data; 
+            y  = L('com_y').Data; 
             dy = L('dy').Data;
             % find negative-going zero crossing of dy AFTER the start
             z = findZeroCrossNeg(dy,t);
