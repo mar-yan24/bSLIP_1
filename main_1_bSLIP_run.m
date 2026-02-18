@@ -118,7 +118,7 @@ function v = try_data(getV, names)
             end
         end
     end
-    v = nan; v = v(ones(1,1)); % scalar NaN by default
+    v = nan; v = v(ones(1,1));
 end
 function t = try_time(simOut, getV, preferNames)
     for i=1:numel(preferNames)

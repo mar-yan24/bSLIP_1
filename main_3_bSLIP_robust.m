@@ -1,10 +1,8 @@
 function main_3_bSLIP_robust
-% 10 s rough-terrain run with a one-step deadbeat apex regulator on phi_TD.
-% Self-contained (local get_ts helper at bottom).
 
 clear; close all; clc;
 
-%% Model + setup
+% model + setup
 setup_bSLIP_run;
 mdl = 'bSLIP_run'; load_system(mdl);
 set_param(mdl,'ReturnWorkspaceOutputs','on');
@@ -16,26 +14,26 @@ pref.dx = {'outdx','dx','dx_com','dcom_x'};
 pref.dy = {'outdy','dy','dy_com','dcom_y'};
 pref.y  = {'outcom_y','com_y','y','y_com'};
 
-assignin('base','use_raibert',0);     % only deadbeat φTD for this task
-assignin('base','flag_apex2apex',1);  % hop-by-hop
+assignin('base','use_raibert',0); 
+assignin('base','flag_apex2apex',1); 
 
-%% Desired apex height + initial apex + φTD
+% desired apex height + initial apex
 y_target = 1.20;
 phi_TD   = deg2rad(20);
 y0=1.0; dy0=0; dx0=5.0;
 assignin('base','y0',y0); assignin('base','dy0',dy0); assignin('base','dx0',dx0);
 
-%% Estimate local slope once
+% estimate local slope once
 dphi0 = deg2rad(1);
 dH_dphi = estimate_dH_dphi(mdl,'setup_bSLIP_run',y0,dx0,phi_TD,dphi0,pref);
 
-%% Step terrain between hops (example)
+% step terrain between hops
 base_h = evalin('base','plane_height');
-steps  = [4 7 11 15];               % hop indices
-heights= [+0.05 -0.06 +0.04 -0.05]; % deltas (m)
+steps  = [4 7 11 15];              
+heights= [+0.05 -0.06 +0.04 -0.05];
 h_total = base_h;
 
-%% Hop loop (time-stitching)
+% hop loop
 Tmax=10; hop_max=40; t_all=[]; y_all=[]; apex_log=[];
 
 for hop=1:hop_max
@@ -53,20 +51,19 @@ for hop=1:hop_max
     [t,y,~] = get_ts_local(simOut,pref);
     t = t - t(1) + (t_all(end)+1e-6)*(~isempty(t_all));
     t_all = [t_all; t]; y_all = [y_all; y];
-    y_apex = y(end); apex_log(end+1)=y_apex; %#ok<AGROW>
+    y_apex = y(end); apex_log(end+1)=y_apex; 
 
     if t_all(end)>Tmax, break; end
 
-    % deadbeat update for NEXT hop
+    % deadbeat update for next hop
     phi_TD = deadbeat_phi_controller(phi_TD, y_apex, y_target, dH_dphi, [deg2rad(10) deg2rad(28)]);
 
-    % prepare ICs for next hop
     assignin('base','y0',y_apex);
     assignin('base','dy0',0);
     assignin('base','dx0', get_ts_local(simOut,pref,'dx','last'));
 end
 
-% Plots
+% plots
 figure('Name','Task 3: apex vs hop'); clf; 
 plot(0:numel(apex_log)-1, apex_log,'k.-'); hold on; yline(y_target,'r--');
 xlabel('hop'); ylabel('apex height (m)'); box on;
@@ -76,7 +73,7 @@ plot(t_all,y_all,'k-'); hold on; yline(y_target,'r--');
 xlabel('time (s)'); ylabel('COM height (m)'); box on;
 end
 
-% ----- local helpers -----
+% helpers
 function [t, y, dy] = get_ts_local(simOut, pref, which, pick)
 if nargin<3, which=''; end, if nargin<4, pick=[]; end
 try, yout = simOut.get('yout'); catch, yout = []; end

@@ -1,14 +1,13 @@
 function dH = estimate_dH_dphi(mdl, setupFcn, y_apex, dx_apex, phi0, dphi, pref)
-% Estimate dH/dphi around phi0 from two apex->apex runs.
 
     feval(setupFcn);
     load_system(mdl);
     set_param(mdl,'ReturnWorkspaceOutputs','on');
-    %set_param(mdl,'EnableZeroCrossing','on');
+    % set_param(mdl,'EnableZeroCrossing','on');
     assignin('base','use_raibert',0);
     assignin('base','flag_apex2apex',1);
 
-    % Common apex ICs
+    % common apex
     assignin('base','y0',y_apex);
     assignin('base','dy0',0);
     assignin('base','dx0',dx_apex);
@@ -16,7 +15,7 @@ function dH = estimate_dH_dphi(mdl, setupFcn, y_apex, dx_apex, phi0, dphi, pref)
     % minus
     assignin('base','phi_TD_cmd_rad',phi0 - dphi);
     simOutM = sim(mdl);
-    [~, yM] = get_ts_local(simOutM, pref);   % local helper below
+    [~, yM] = get_ts_local(simOutM, pref); 
     y_next_m = yM(end);
 
     % plus
@@ -28,7 +27,7 @@ function dH = estimate_dH_dphi(mdl, setupFcn, y_apex, dx_apex, phi0, dphi, pref)
     dH = (y_next_p - y_next_m) / (2*dphi);
 end
 
-% local helper (identical to the one in main_2_1 for convenience)
+% local helper
 function [t, y, dy] = get_ts_local(simOut, pref)
 try, yout = simOut.get('yout'); catch, yout = []; end
 if ~isempty(yout)
